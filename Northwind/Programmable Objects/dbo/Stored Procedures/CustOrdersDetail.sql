@@ -1,19 +1,27 @@
 IF OBJECT_ID('[dbo].[CustOrdersDetail]') IS NOT NULL
-	DROP PROCEDURE [dbo].[CustOrdersDetail];
+    DROP PROCEDURE [dbo].[CustOrdersDetail];
 
 GO
-SET QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-SET ANSI_NULLS ON
+SET ANSI_NULLS ON;
 GO
 
-CREATE PROCEDURE [dbo].[CustOrdersDetail] @OrderID int
+CREATE PROCEDURE [dbo].[CustOrdersDetail] @OrderID INT
 AS
-SELECT ProductName,
-    UnitPrice=ROUND(Od.UnitPrice, 2),
-    Quantity,
-    Discount=CONVERT(int, Discount * 100), 
-    ExtendedPrice=ROUND(CONVERT(money, Quantity * (1 - Discount) * Od.UnitPrice), 2)
-FROM Products P, [Order Details] Od
-WHERE Od.ProductID = P.ProductID and Od.OrderID = @OrderID
+    BEGIN
+        SELECT
+                PR.ProductName,
+                UnitPrice     = ROUND(Od.UnitPrice, 2),
+                Od.Quantity,
+                Discount      = CONVERT(INT, Od.Discount * 100),
+                ExtendedPrice = ROUND(CONVERT(MONEY, Od.Quantity * (1 - Od.Discount) * Od.UnitPrice), 2)
+        FROM
+                dbo.Products        PR
+            JOIN
+                dbo.[Order Details] Od
+                    ON Od.ProductID = PR.ProductID
+        WHERE
+                Od.OrderID = @OrderID;
+    END;
 GO
